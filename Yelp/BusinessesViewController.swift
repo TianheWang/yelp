@@ -8,11 +8,12 @@
 
 import UIKit
 
-class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, FiltersViewControllerDelegate {
+class BusinessesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, FiltersViewControllerDelegate, UISearchBarDelegate {
 
     @IBOutlet weak var tableView: UITableView!
 
     var businesses: [Business]!
+    var searchBar: UISearchBar?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +32,10 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
             }
         })
 
+        searchBar = UISearchBar()
+        searchBar?.sizeToFit()
+        navigationItem.titleView = searchBar
+        searchBar?.delegate = self
 /* Example of Yelp search with more search options specified
         Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
@@ -43,11 +48,35 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
 */
     }
 
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        self.searchBar?.showsCancelButton = true
+    }
+
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+    }
+
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        Business.searchWithTerm((searchBar.text)!, sort: .Distance, categories: nil, deals: nil) { (businesses: [Business]!, error: NSError!) -> Void in
+            self.businesses = businesses
+
+            for business in businesses {
+                print(business.name!)
+                print(business.address!)
+            }
+            self.tableView.reloadData()
+        }
+        searchBar.showsCancelButton = false
+        searchBar.resignFirstResponder()
+    }
+
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if businesses != nil {
