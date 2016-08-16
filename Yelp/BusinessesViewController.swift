@@ -104,9 +104,12 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
         let categories = filters["categories"] as? [String]
+        let deal = filters["deal"] as? Bool
+        let sortMode = YelpSortMode(rawValue: filters["sortMode"] as! Int)
+        let term = searchBar?.text ?? ""
 
         // what not search in local data??
-        Business.searchWithTerm("Restaurants", sort: nil, categories: categories, deals: nil) { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm(term, sort: sortMode, categories: categories, deals: deal) { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.tableView.reloadData()
             for business in businesses {
